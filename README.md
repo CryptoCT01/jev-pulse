@@ -74,3 +74,26 @@ cat logs/pre-fee/paper_ticks.part1.jsonl \
 | `logs/with-fee/account.json` | Account snapshot from that run |
 
 Each tick is one JSON object per line: state, Jev's answers, the action the executor actually took, and the paper account after the fill or the hold.
+
+## Code
+
+Same shape as the Crossfire repo: the desk, the paper engine, and an empty env example. No keys.
+
+| Path | What it is |
+| --- | --- |
+| `dash/index.html` | The desk. Served as-is. |
+| `scripts/dash_server.py` | `:8790` |
+| `scripts/paper_sim.py` | The fee and the 6 bps hold |
+| `scripts/jev_gate.py` | TypeSafe Jev call |
+| `scripts/paper_tick.py` | One decision cycle |
+| `scripts/ws_public.py` | Live Bitget public marks |
+| `playbook/` | Studio package. Paper only |
+| `.env.example` | Empty keys. Copy to `.env` locally |
+
+```bash
+cp .env.example .env
+# put your own OpenRouter key in .env — do not commit it
+python3 scripts/dash_server.py
+```
+
+The desk is paper. It does not send orders to Bitget.

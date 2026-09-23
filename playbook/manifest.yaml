@@ -1,0 +1,100 @@
+name: jev-pulse
+template_source: jev-pulse
+display_name: "Jev Pulse"
+display_name_i18n:
+  en: "Jev Pulse"
+  zh: "Jev 脉冲闸门"
+  zh-tw: "Jev 脈衝閘門"
+  es: "Jev Pulse"
+  ja: "Jevパルス"
+  vi: "Jev Pulse"
+version: "0.1.0"
+description: "Paper BTCUSDT perp writer with typed Jev Choice/Noul/Score decision gate"
+description_i18n:
+  en: "Paper BTCUSDT perp writer with typed Jev Choice/Noul/Score decision gate"
+  zh: "BTCUSDT 永续纸上交易：Studio 写循环，Jev 仅输出 Choice/Noul/Score"
+  zh-tw: "BTCUSDT 永續紙上交易：Studio 寫循環，Jev 僅輸出 Choice/Noul/Score"
+  es: "Paper BTCUSDT perp con compuerta tipada Jev Choice/Noul/Score"
+  ja: "BTCUSDTパープのペーパー取引。Studioがループ、Jevが型付き判定のみ"
+  vi: "Paper BTCUSDT perp với cổng quyết định Jev Choice/Noul/Score"
+long_description: |
+  Jev Pulse is a paper-only BTCUSDT perpetual strategy built for Bitget GetAgent
+  Studio. The core idea is a clean split of responsibility: Studio and the
+  Playbook own the heartbeat, market reads, paper fills, logs, and the publish
+  link — they are the writer. TypeSafe Jev answers only typed questions
+  (choice, yes/no probability, and ordered score) about a compact feature
+  state. It does not write a prose thesis and does not place orders by itself.
+
+  On each cycle the writer assembles mark, short returns, volatility, range
+  position, funding, position snapshot, and a simple risk-cage summary into a
+  single state object. Offline, that state is sent to Jev through the OpenRouter
+  Decisions API. Jev returns four fixed answers: which action to take among
+  hold, buy, sell, or reduce; whether same-side re-entry looks justified;
+  whether the risk cage looks stressed; and how strong a change in exposure
+  should be. The writer then applies hard vetoes: stress blocks new risk,
+  weak change scores stay flat, and missing Jev answers fail closed to hold.
+
+  Exit and stop logic are explicit. A REDUCE or close answer flattens or cuts
+  the paper position through the managed follow-trade path. Cage-stress vetoes
+  act as a soft stop: when stress probability is high the writer refuses new
+  buys or sells and prefers reduce or hold. There is no separate hard-coded
+  take-profit price ladder in this package; profit protection is the typed
+  reduce/hold gate plus Studio paper limits. Stop-loss behavior is therefore
+  gate-driven rather than a fixed percentage, which keeps the decision surface
+  inspectable in logs.
+
+  Inside the managed GetAgent sandbox, direct external decision HTTP is not
+  available, so the uploaded package records unavailability and holds rather
+  than inventing narrative trades. Competition evidence therefore combines
+  Studio Paper Trading as the writer trail with local companion ticks that
+  actually call Jev. Subscribers can tune leverage and margin budget; raising
+  either amplifies outcomes without making the gate more selective.
+
+  The strategy is not designed for live capital in the hackathon path. It can
+  underperform in choppy ranges, around abrupt funding shocks, and whenever
+  the typed gate stays unavailable. Use it only if you accept paper-mode
+  limitations, gate-driven exits and stops, and want a transparent System-One
+  decision boundary instead of a chat-model thesis.
+
+market_type: contract
+trading_symbols: ["BTCUSDT"]
+tags: ["jev", "btc", "paper", "agentic", "gate", "contract"]
+
+output_kind: trade_strategy
+decision_mode: llm_assisted
+backtest_support: none
+runtime_profile: llm_bounded
+execution_mode: follow_trade
+follow_trade_supported: true
+official_evidence_kind: paper
+
+schedule:
+  cron: "*/15 * * * *"
+  tz: "Europe/London"
+
+strategy_config:
+  trading_symbols: ["BTCUSDT"]
+  leverage: 10
+  margin_budget: "10000"
+  heartbeat_hint: "15m"
+
+user_config_schema:
+  trading_symbols:
+    type: array
+    item_type: string
+    default: ["BTCUSDT"]
+    options: ["BTCUSDT"]
+    min_items: 1
+    max_items: 1
+    label: "Trading symbol"
+  leverage:
+    type: integer
+    default: 10
+    min: 1
+    max: 20
+    label: "Paper leverage"
+  margin_budget:
+    type: string
+    default: "10000"
+    pattern: "^[0-9]+(\\.[0-9]+)?$"
+    label: "Margin budget USDT"
