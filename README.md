@@ -18,7 +18,6 @@ Ordered for what judges ask for — only what Jev Pulse actually ships:
 - [x] **Risk control layer** — rebated taker in the book, no same-tick flip, no exit inside 6 bps, one $200 clip
 - [x] **Paper trading (not live)** — Mac paper sim, live marks, no Bitget order path
 - [x] **Paper trading log** — append-only JSONL in `logs/pre-fee/` and `logs/with-fee/`
-- [x] **Studio package** — paper Playbook in `playbook/` · [GetAgent Studio](https://getagent.studio/strategy/9079d236-f26e-4de7-b49e-2ef5ff6ec7b3)
 
 ## Two frames
 
@@ -119,7 +118,6 @@ A fresh clone starts an empty book unless you point the desk at `logs/with-fee/`
 | `scripts/jev_gate.py` | TypeSafe Jev (OpenRouter Decisions) |
 | `scripts/paper_tick.py` | One decision cycle |
 | `scripts/ws_public.py` | Live Bitget public marks + 1s candles |
-| `playbook/` | GetAgent Studio package. Paper only |
 | `.env.example` | Empty keys. Copy to `.env` locally |
 
 ### APIs
