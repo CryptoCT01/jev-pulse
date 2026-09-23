@@ -1,8 +1,24 @@
 # Jev Pulse
 
+**Bitget AI Base Camp Hackathon S2** · Agentic Trading · **Open Theme (Custom)**
+
 BTCUSDT perpetual paper desk. Live Bitget marks. TypeSafe Jev names a side. The executor decides whether that side is allowed to pay a fee.
 
-This repo is the evidence pack: two desk frames, the fee rule, and the paper logs. No API keys. No `.env`. No live order path.
+Repo: [github.com/CryptoCT01/jev-pulse](https://github.com/CryptoCT01/jev-pulse)
+
+Second independent S2 entry. Not Crossfire.
+
+## Track 2 checklist · Agentic Trading
+
+Ordered for what judges ask for — only what Jev Pulse actually ships:
+
+- [x] **Runnable demo** — local desk on `:8790`, live Bitget public marks
+- [x] **LLM as decision-maker** — TypeSafe Jev (`typesafe/jev-1.13`) via OpenRouter Decisions. Choice / Noul / Score only. No prose thesis
+- [x] **Event → decision → execution flow** — public tape → Jev → 6 bps fee executor → paper fill or hold
+- [x] **Risk control layer** — rebated taker in the book, no same-tick flip, no exit inside 6 bps, one $200 clip
+- [x] **Paper trading (not live)** — Mac paper sim, live marks, no Bitget order path
+- [x] **Paper trading log** — append-only JSONL in `logs/pre-fee/` and `logs/with-fee/`
+- [x] **Studio package** — paper Playbook in `playbook/` · [GetAgent Studio](https://getagent.studio/strategy/9079d236-f26e-4de7-b49e-2ef5ff6ec7b3)
 
 ## Two frames
 
@@ -10,13 +26,13 @@ This repo is the evidence pack: two desk frames, the fee rule, and the paper log
 
 ![Pure paper desk. Gross PnL, no fee charged.](docs/paper-no-fee.png)
 
-This is the first run, before the book was reset. Equity **$10,196.34**. PnL **+$196.34**. **25,299** fills. Those fills are at the mark. No fee. No spread. The green number is an upper bound, not a result.
+First run, before the book was reset. Equity **$10,196.34**. PnL **+$196.34**. **25,299** fills. Those fills are at the mark. No fee. No spread. The green number is an upper bound, not a result.
 
 ### 2. The same desk after the fee was put in.
 
 ![Fee-aware paper desk. Taker, rebate, and net fee on the book.](docs/paper-with-fee.png)
 
-This frame is the run that started after the reset. PnL is **−$12.22**. Equity is **$9,987.78**. A volume counter was added so the fee can be checked against notional crossed. It is not the point of the frame.
+Run after the reset. PnL **−$12.22**. Equity **$9,987.78**. Seed **$10,000**.
 
 What the top row is doing:
 
@@ -27,7 +43,9 @@ What the top row is doing:
 | Net fee in PnL | The half already taken out of the book |
 | Equity + rebate | Mac equity plus the rebate. A preview of the credit. Not cash |
 
-On this frame the rebate preview is **$9,999.36**. That is still under the **$10,000** seed. The book is not in profit.
+On this frame the rebate preview is **$9,999.36**. That is still under the seed. The book is not in profit.
+
+**The second desk is a volume book.** The 6 bps hold plus the 50% taker rebate keep the sleeve near level — Mac equity **$9,987.78**, equity + rebate **$9,999.36**, half a dollar off **$10,000**. A winner that exits on the line nets about **$0** after the fee. A loser is about **−$0.24**. The account does not trend. What compounds is notional: about **$38,600** across **193** fills, one **$200** clip at a time. The rebate is what makes that volume possible without digging a hole.
 
 ## How the fee was identified
 
@@ -51,7 +69,7 @@ The migration was an executor change, not a new model.
 4. One **$200** clip. No add. No same-tick flip. No exit until the mark has moved **6 bps** for or against.
 5. Reset the displayed book to a flat **$10,000** so the new rule can be watched on its own. The old realized was not rewritten into that number.
 
-A winner that exits at exactly 6 bps nets about **$0** after the fee. A loser at 6 bps is about **−$0.24**. Flat is still the benchmark.
+Flat is still the benchmark. Write-up: [docs/why-cost-gate.md](docs/why-cost-gate.md).
 
 ## Logs
 
@@ -75,25 +93,54 @@ cat logs/pre-fee/paper_ticks.part1.jsonl \
 
 Each tick is one JSON object per line: state, Jev's answers, the action the executor actually took, and the paper account after the fill or the hold.
 
-## Code
+The 78 MB parts will not preview in the GitHub file UI. Clone or download raw.
 
-Same shape as the Crossfire repo: the desk, the paper engine, and an empty env example. No keys.
-
-| Path | What it is |
-| --- | --- |
-| `dash/index.html` | The desk. Served as-is. |
-| `scripts/dash_server.py` | `:8790` |
-| `scripts/paper_sim.py` | The fee and the 6 bps hold |
-| `scripts/jev_gate.py` | TypeSafe Jev call |
-| `scripts/paper_tick.py` | One decision cycle |
-| `scripts/ws_public.py` | Live Bitget public marks |
-| `playbook/` | Studio package. Paper only |
-| `.env.example` | Empty keys. Copy to `.env` locally |
+## Run
 
 ```bash
-cp .env.example .env
-# put your own OpenRouter key in .env — do not commit it
+cd path/to/jev-pulse
+python3 -m pip install websockets
+cp .env.example .env          # OpenRouter key only if you want Jev ticks
 python3 scripts/dash_server.py
+# Desk: http://127.0.0.1:8790/
 ```
 
-The desk is paper. It does not send orders to Bitget.
+The desk is paper. It does not send orders to Bitget. Public marks need no key. The companion (`scripts/run_companion_loop.sh`) needs `OPENROUTER_API_KEY` in `.env`. Without it the desk still serves live marks and the committed paper log.
+
+A fresh clone starts an empty book unless you point the desk at `logs/with-fee/` — the screenshots are the two frames above.
+
+## Architecture
+
+| Path | Role |
+| --- | --- |
+| `dash/index.html` | Desk. Served as-is |
+| `scripts/dash_server.py` | Threading HTTP on **8790** |
+| `scripts/paper_sim.py` | Fee, 6 bps hold, $200 clip |
+| `scripts/jev_gate.py` | TypeSafe Jev (OpenRouter Decisions) |
+| `scripts/paper_tick.py` | One decision cycle |
+| `scripts/ws_public.py` | Live Bitget public marks + 1s candles |
+| `playbook/` | GetAgent Studio package. Paper only |
+| `.env.example` | Empty keys. Copy to `.env` locally |
+
+### APIs
+
+- `GET /api/health` — process up, `service: jev-pulse`
+- `GET /api/state` — last ticks, paper account, live mark overlay
+
+## Security
+
+- No secrets in the repository
+- Prefer Bitget Agentic / Demo credentials for any future live sleeve
+- Paper only in this path — no live orders, no kill switch to arm
+- Do not commit `.env`, `HANDOVER.md`, or `SUBMISSION-DRAFT.md`
+- Paper evidence in `logs/pre-fee/` and `logs/with-fee/` is committed on purpose
+
+## Hackathon
+
+- Track: Agentic Trading · Sub-theme: Open Theme (Custom)
+- Builder: **cryptoT** ([@CryptoCT01](https://github.com/CryptoCT01))
+- Handbook: https://bitget-ai.gitbook.io/bitgetai_hackathons2
+
+## License
+
+MIT License — Copyright (c) 2026 cryptoT / CryptoCTO1
