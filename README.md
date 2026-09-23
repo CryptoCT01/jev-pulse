@@ -18,6 +18,7 @@ Ordered for what judges ask for — only what Jev Pulse actually ships:
 - [x] **Risk control layer** — rebated taker in the book, no same-tick flip, no exit inside 6 bps, one $200 clip
 - [x] **Paper trading (not live)** — Mac paper sim, live marks, no Bitget order path
 - [x] **Paper trading log** — append-only JSONL in `logs/pre-fee/` and `logs/with-fee/`
+- [x] **Compliant X post** — quote-tweet + desk demo [timeline](docs/X-POSTS.md) · https://x.com/CryptoCT01/status/2102053192871661870
 
 ## Two frames
 
