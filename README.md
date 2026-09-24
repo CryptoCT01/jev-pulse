@@ -73,13 +73,17 @@ Flat is still the benchmark. Write-up: [docs/why-cost-gate.md](docs/why-cost-gat
 
 ## Logs
 
-The first run is split only because GitHub rejects a single file over 100 MB. Concatenate the parts in order. Nothing was dropped.
+The logs are split only because GitHub rejects a single file over 100 MB. Concatenate the parts in order. Nothing was dropped.
 
 ```bash
 cat logs/pre-fee/paper_ticks.part1.jsonl \
     logs/pre-fee/paper_ticks.part2.jsonl \
     logs/pre-fee/paper_ticks.part3.jsonl \
     > paper_ticks_pre_fee.jsonl
+
+cat logs/with-fee/paper_ticks.part1.jsonl \
+    logs/with-fee/paper_ticks.part2.jsonl \
+    > paper_ticks_with_fee.jsonl
 ```
 
 | Path | What it is |
@@ -88,7 +92,10 @@ cat logs/pre-fee/paper_ticks.part1.jsonl \
 | `logs/pre-fee/paper_ticks.part2.jsonl` | First paper run, part 2 |
 | `logs/pre-fee/paper_ticks.part3.jsonl` | First paper run, part 3 |
 | `logs/pre-fee/account.json` | Account snapshot at the reset |
-| `logs/with-fee/paper_ticks.jsonl` | Run after the fee rule |
+| `logs/with-fee/paper_ticks.part1.jsonl` | Fee run, part 1 |
+| `logs/with-fee/paper_ticks.part2.jsonl` | Fee run, part 2 |
+| `logs/with-fee/decisions.jsonl` | One decision per tick: action, gate, side, latency |
+| `logs/with-fee/trades.jsonl` | Closed paper legs from that run |
 | `logs/with-fee/account.json` | Account snapshot from that run |
 
 Each tick is one JSON object per line: state, Jev's answers, the action the executor actually took, and the paper account after the fill or the hold.

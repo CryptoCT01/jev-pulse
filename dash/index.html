@@ -115,6 +115,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opa
 .panel h3 b{color:var(--cyan)}
 .chart{flex:1;min-height:180px;position:relative;display:flex;flex-direction:column;min-width:0}
 #cvhost{position:relative;flex:1;min-height:0}
+.chart-legend{position:absolute;top:6px;left:10px;z-index:3;display:flex;gap:12px;pointer-events:none;font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:#c4a35a}
+.chart-legend .up{color:#3dff9c}.chart-legend .dn{color:#ff5d6c}
 .eqstrip{flex:0 0 46px;position:relative;border-top:1px solid var(--line);background:rgba(0,0,0,.22)}
 .eqstrip canvas{position:absolute;inset:0;width:100%;height:100%}
 .eqstrip .eqlbl{position:absolute;left:8px;top:4px;font-family:var(--mono);font-size:7px;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;pointer-events:none}
@@ -219,8 +221,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opa
     <div class="card"><div class="lblrow"><span class="lbl">Book / LS</span><button type="button" class="info-btn" data-info="book" aria-label="About book">i</button></div><div class="big" id="imb">—</div><div class="sub" id="ls">LS —</div></div>
   </div>
   <div class="main">
-    <div class="panel price"><h3>Price · BTCUSDT 1s <b>WS tape</b><button type="button" class="info-btn" data-info="price" aria-label="About price">i</button></h3>
+    <div class="panel price"><h3>Price · BTCUSDT line <b>WS tape</b><button type="button" class="info-btn" data-info="price" aria-label="About price">i</button></h3>
       <div class="chart">
+        <div class="chart-legend"><span>Line · last trade</span><span class="up">▲ long / buy</span><span class="dn">▼ short / sell</span></div>
         <div id="cvhost"></div>
         <div class="eqstrip"><span class="eqlbl" id="eqlbl">Closed PnL · realized</span><span class="eqval" id="eqval">$0.00</span><canvas id="eqcv"></canvas></div>
       </div>
@@ -288,7 +291,7 @@ function ensureChart(){
       rightPriceScale:{borderColor:'rgba(255,255,255,.08)'},
       timeScale:{borderColor:'rgba(255,255,255,.08)',timeVisible:true,secondsVisible:true},
       width:el.clientWidth,height:el.clientHeight});
-    series=chart.addCandlestickSeries({upColor:'#3dff9c',downColor:'#ff5d6c',borderVisible:false,wickUpColor:'#3dff9c',wickDownColor:'#ff5d6c'});
+    series=chart.addAreaSeries({lineColor:'#e8b84a',topColor:'rgba(232,184,74,.34)',bottomColor:'rgba(232,184,74,.02)',lineWidth:2,priceLineColor:'rgba(232,184,74,.75)',priceLineStyle:2,lastValueVisible:true,crosshairMarkerVisible:true,crosshairMarkerRadius:3});
     new ResizeObserver(()=>{if(el.clientWidth&&chart)chart.applyOptions({width:el.clientWidth,height:el.clientHeight})}).observe(el);
     return true;
   }catch(e){usedCanvas=true;chart=null;drawCanvas(toRows(lastCandles),lastMark);return false}
@@ -301,29 +304,34 @@ function drawCanvas(rows,mark){
   if(!r.width||!r.height) return;
   c.width=r.width*devicePixelRatio;c.height=r.height*devicePixelRatio;
   const ctx=c.getContext('2d');ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-  const w=r.width,h=r.height,pad=16;ctx.clearRect(0,0,w,h);
+  const w=r.width,h=r.height,pad=18;ctx.clearRect(0,0,w,h);
   if(!rows||rows.length<2)return;
   let hi=-1e12,lo=1e12;
-  rows.forEach(x=>{hi=Math.max(hi,x.high);lo=Math.min(lo,x.low)});
+  rows.forEach(x=>{hi=Math.max(hi,x.close);lo=Math.min(lo,x.close)});
   if(mark){hi=Math.max(hi,mark);lo=Math.min(lo,mark)}
   const span=(hi-lo)||1,cw=(w-pad*2)/rows.length;
   const y=v=>pad+(1-(v-lo)/span)*(h-pad*2);
-  rows.forEach((x,i)=>{const x0=pad+i*cw,up=x.close>=x.open;
-    ctx.strokeStyle=up?'#3dff9c':'#ff5d6c';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(x0+cw/2,y(x.high));ctx.lineTo(x0+cw/2,y(x.low));ctx.stroke();
-    ctx.fillStyle=up?'#3dff9c':'#ff5d6c';
-    const top=y(Math.max(x.open,x.close)),bot=y(Math.min(x.open,x.close));
-    ctx.fillRect(x0+1,top,Math.max(2,cw-3),Math.max(1,bot-top));
-  });
-  const idx=new Map(rows.map((r,i)=>[r.time,i]));
+  const pts=rows.map((x,i)=>({x:pad+i*cw+cw/2,y:y(x.close)}));
+  ctx.beginPath();
+  pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,h-pad);ctx.lineTo(pts[0].x,h-pad);ctx.closePath();
+  const g=ctx.createLinearGradient(0,pad,0,h-pad);
+  g.addColorStop(0,'rgba(232,184,74,.36)');g.addColorStop(1,'rgba(232,184,74,.02)');
+  ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();
+  pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.strokeStyle='#e8b84a';ctx.lineWidth=1.7;ctx.stroke();
+  const idx=new Map(rows.map((row,i)=>[row.time,i]));
+  ctx.font='700 8px JetBrains Mono, monospace';
   for(const m of markerData){
     const i=idx.get(m.time); if(i==null) continue;
-    const x0=pad+i*cw,yy=y(rows[i][m.buy?'low':'high']);
+    const x0=pts[i].x,yy=pts[i].y;
     ctx.fillStyle=m.buy?'#3dff9c':'#ff5d6c';
     ctx.beginPath();
-    if(m.buy){ctx.moveTo(x0+cw/2,yy+11);ctx.lineTo(x0+cw/2-5,yy+19);ctx.lineTo(x0+cw/2+5,yy+19)}
-    else{ctx.moveTo(x0+cw/2,yy-11);ctx.lineTo(x0+cw/2-5,yy-19);ctx.lineTo(x0+cw/2+5,yy-19)}
+    if(m.buy){ctx.moveTo(x0,yy+8);ctx.lineTo(x0-4,yy+15);ctx.lineTo(x0+4,yy+15)}
+    else{ctx.moveTo(x0,yy-8);ctx.lineTo(x0-4,yy-15);ctx.lineTo(x0+4,yy-15)}
     ctx.closePath();ctx.fill();
+    ctx.fillText(m.text,x0+6,m.buy?yy+16:yy-8);
   }
   if(mark){ctx.setLineDash([3,3]);ctx.strokeStyle='rgba(232,184,74,.55)';ctx.beginPath();ctx.moveTo(0,y(mark));ctx.lineTo(w,y(mark));ctx.stroke();ctx.setLineDash([])}
 }
@@ -334,9 +342,9 @@ function setCandles(candles,mark){
   if(!ensureChart()||!series){drawCanvas(rows,mark);return}
   const key=rows.length+':'+rows[0].time+':'+rows[rows.length-1].time+':'+rows[rows.length-1].close;
   try{
-    if(key!==lastCandleKey){series.setData(rows);lastCandleKey=key}
-    if(mark){const last=Object.assign({},rows[rows.length-1]);
-      last.close=mark;last.high=Math.max(last.high,mark);last.low=Math.min(last.low,mark);series.update(last)}
+    const pts=rows.map(r=>({time:r.time,value:r.close}));
+    if(key!==lastCandleKey){series.setData(pts);lastCandleKey=key}
+    if(mark){const last=pts[pts.length-1];series.update({time:last.time,value:mark})}
     if(markerData.length){try{series.setMarkers(markerData)}catch(e){}}
   }catch(e){usedCanvas=true;chart=null;drawCanvas(rows,mark)}
 }
@@ -344,11 +352,11 @@ function setTradeMarkers(trades,mark){
   const rows=tradeRows(trades);
   markerData=rows.map(t=>{
     const buy=t.side==='long'||t.side==='buy';
-    return {time:t.time,buy,
+    const label=t.side==='long'?'LONG':t.side==='short'?'SHORT':buy?'BUY':'SELL';
+    return {time:t.time,buy,text:label,
       position:buy?'belowBar':'aboveBar',
       color:buy?'#3dff9c':'#ff5d6c',
-      shape:buy?'arrowUp':'arrowDown',
-      text:(buy?'BUY ':'SELL ')+(t.entry?t.entry.toFixed(0):'')};
+      shape:buy?'arrowUp':'arrowDown'};
   });
   if(usedCanvas||!series){drawCanvas(toRows(lastCandles),lastMark);return}
   try{series.setMarkers(markerData)}catch(e){usedCanvas=true;chart=null;drawCanvas(toRows(lastCandles),lastMark)}
@@ -497,7 +505,7 @@ const INFO={
   streak:{title:'Streak',body:'Wins and losses on closed legs after fees. A 6 bps winner is about flat once the round trip is charged.',real:'Counted on net settlement.'},
   book:{title:'Book / LS',body:'Order-book imbalance and the long/short ratio from the public tape. Context for Jev. Not a position.',real:'Bitget public. Not a fill.'},
   fees:{title:'Volume and rebate',body:'Volume is notional crossed. Gross taker is 0.06%. The gold rebate is half of that. Mac equity already has only the net fee taken out, so it does not move when the rebate is imagined back in. Equity + rebate is Mac equity plus that gold number. It is a preview of the credit on top, not a second copy of equity, and it is not cash in the book.',real:'Same marks. The sum is a preview.'},
-  price:{title:'Price',body:'Live Bitget mark and 1-second candles from the public trade stream. Markers are paper fills, not exchange orders.',real:'Public tape. No private key.'},
+  price:{title:'Price',body:'Gold line is the last trade, filled underneath. Green ▲ is a paper long or buy. Red ▼ is a paper short or sell. They sit off the line so the path stays readable.',real:'Public tape. No private key.'},
   cinema:{title:'Decision cinema',body:'Recent ticks. The word on the right is the action the book took, not a promise of the next one.',real:'Local log. Not Studio.'},
   blotter:{title:'Position blotter',body:'The open Mac paper leg and the last closes. One clip. It will not flip until the mark has moved about 6 bps, then it goes flat.',real:'paper_sim. Not the Studio ledger.'},
   beacon:{title:'Tick beacon',body:'This is the decision clock, not the price. The chart still moves every second. Jev is asked every 5 seconds. He still cannot flip inside a 6 bps move.',real:'One companion. Not a second model.'},
