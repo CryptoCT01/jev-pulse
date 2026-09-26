@@ -6,3 +6,33 @@
 *secret*
 *credential*
 .DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local runtime output. Committed run-1 evidence lives in logs/pre-fee/ and logs/with-fee/.
+logs/*
+!logs/pre-fee/
+!logs/with-fee/
+logs/archive/
+.state/
+backups/
+
+# Private notes and working files
+SUBMISSION*.md
+HANDOVER.md
+*.diff
+*.patch
+*.tmp
+*.bak
+*.orig
+*.swp
+*~
+
+# Replay study inputs/outputs that are large or derived from the local run-1 log
+research/replay/data/
+research/replay/grid_all.csv.gz
