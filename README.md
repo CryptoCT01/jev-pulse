@@ -64,11 +64,11 @@ This is less than an hour of data, and v3 is not profitable. No take-profit has 
 
 Each screenshot shows real paper data from the engine and its logs, in the order the dashboard was built. Times are UTC.
 
-### 1. v1 · the original desk (24 Sep 2026)
+### 1. v1 · the original desk (run 1, before the rebuild)
 
-![v1: the original Jev Pulse desk, early in run 1](docs/screenshots/01-v1-original-dashboard.png)
+![v1: the original Jev Pulse desk, late in run 1](docs/screenshots/01-v1-original-dashboard.png)
 
-The starting point, early in run 1 (193 fills, −$12.22): live 1 s candles, Jev's decisions and a row of fee tiles. Its "Equity + rebate" tile counted the rebate twice; v2 fixed that.
+The original desk as it looked late in run 1, right before we rebuilt it: 1 s candles, Jev's decision feed, the position blotter and a row of headline tiles. Its header P&L read +$196.34, which did not reflect fees correctly (the rebate was being counted twice). With fees counted properly, run 1 was −$190.35 net, which is what v2 shows.
 
 ### 2. v2 · fee waterfall and equity curve (26 Sep 2026, 10:22 UTC)
 
