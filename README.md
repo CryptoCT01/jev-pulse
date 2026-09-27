@@ -228,6 +228,10 @@ cat logs/with-fee/paper_ticks.part1.jsonl \
 | `logs/with-fee/decisions.jsonl` | One decision per tick: action, gate, side, latency |
 | `logs/with-fee/trades.jsonl` | Closed paper legs from that run |
 | `logs/with-fee/account.json` | Account snapshot from that run |
+| `logs/v4-multi/account.json` | v4 multi-asset book at the $10k reset (equity ~$9,669, 2,815 round trips) |
+| `logs/v4-multi/trips.jsonl` | Closed legs from that run (exit kind, net pnl, fees) |
+| `logs/v4-multi/fills.jsonl` | Every fill from that run |
+| `logs/v4-multi/decisions.jsonl` | One line per closed trip: symbol, side, gate, pnl |
 
 Each tick is one JSON object per line: state, Jev's answers, the action the executor actually took, and the paper account after the fill or the hold. The 78 MB parts will not preview in the GitHub file UI. Clone or download raw.
 
