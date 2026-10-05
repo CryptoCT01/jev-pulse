@@ -14,10 +14,12 @@ __pycache__/
 venv/
 .pytest_cache/
 
-# Local runtime output. Committed run-1 evidence lives in logs/pre-fee/ and logs/with-fee/.
+# Local runtime output. Committed run evidence is allowlisted below.
 logs/*
 !logs/pre-fee/
 !logs/with-fee/
+!logs/v4-multi/
+!logs/run-2026-10-05-final/
 logs/archive/
 .state/
 backups/

@@ -185,8 +185,9 @@ Committed evidence. Large tick files are split because GitHub rejects files over
 | `logs/pre-fee/` | First paper run (no fee) |
 | `logs/with-fee/` | Run 1 fee-aware book |
 | `logs/v4-multi/` | v4 multi-asset archive before a $10k reset |
+| [`logs/run-2026-10-05-final/`](logs/run-2026-10-05-final/) | **5 Oct 2026 v4.1 green paper run** — scrubbed trips / fills / decisions + account snapshot for Agentic S2 judges |
 
-Live v4 writes `logs/paper_ticks.jsonl`, `logs/paper_fills.jsonl`, `logs/paper_decisions.jsonl` locally while it runs (gitignored).
+Live v4 writes `logs/paper_ticks.jsonl`, `logs/paper_fills.jsonl`, `logs/paper_decisions.jsonl` locally while it runs (gitignored). Raw evidence for today's green run is committed under `logs/run-2026-10-05-final/`.
 
 ## Security
 
@@ -194,7 +195,7 @@ Live v4 writes `logs/paper_ticks.jsonl`, `logs/paper_fills.jsonl`, `logs/paper_d
 - Prefer Bitget Agentic / Demo credentials for any future live sleeve
 - Paper only in this path: no live orders, no kill switch to arm
 - Do not commit `.env`, `HANDOVER.md`, `SUBMISSION.md` or `SUBMISSION-DRAFT.md`
-- Run evidence in `logs/pre-fee/`, `logs/with-fee/`, and `logs/v4-multi/` is committed on purpose
+- Run evidence in `logs/pre-fee/`, `logs/with-fee/`, `logs/v4-multi/`, and `logs/run-2026-10-05-final/` is committed on purpose
 
 ## Hackathon
 
