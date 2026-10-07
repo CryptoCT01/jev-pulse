@@ -81,6 +81,19 @@ Repo: [github.com/CryptoCT01/jev-pulse](https://github.com/CryptoCT01/jev-pulse)
 - By **~14:25 BST**: equity **~$10,004.45**, **31W / 0L**, fees **~$3.89**, max DD **~−$3.34**.
 - Screenshot: [screenshots/2026-10-05-desk-10004.png](screenshots/2026-10-05-desk-10004.png).
 
+### 7. 6 Oct 22:15 BST — TP $0.22 / stop $1.15 + quiet-market skip, reset
+
+- `min_take_usd` **0.22**, `hard_stop_usd` **1.15**, new `quiet_max_bps` **8** (skip markets too quiet to clear costs). Time exit still OFF.
+- By **7 Oct ~18:12 BST**: **137** RT · **107W / 30L** · realized **−$9.33** (fees $16.61).
+- Trips: [logs/run-2026-10-06-pre-fix](../logs/run-2026-10-06-pre-fix/).
+
+### 8. 7 Oct ~18:15 BST — LINK off + break-even stop, reset
+
+- **LINKUSDT off**: it lost **$9.08** on its own, more than the whole run.
+- **Break-even stop** (`be_trigger_bps: 10`): once a trade has been up 10 bps, it closes if it falls back to $0 net after fees, instead of riding down to the $1.15 stop. 10 of the 29 losers had been up 10–16 bps first. Exits show as `be_stop_taker`.
+- Not a time exit: it never closes a trade that has not gone green first.
+- Everything else unchanged. Reset to **$10,000**.
+
 ---
 
 ## What we tried / final choice (summary)
@@ -91,7 +104,9 @@ Repo: [github.com/CryptoCT01/jev-pulse](https://github.com/CryptoCT01/jev-pulse)
 | Swap out weak names (SUI, then BNB/XRP) | Helps the book; LTC + LINK in |
 | Time soft exit + ultra-small TP ($0.05) | Clearly worse (heavy losers) |
 | Time soft exit + TP $0.20 | Still worse |
-| **No time soft exit + TP $0.20 + SL $1.25** | **Best so far — green after fees** |
+| **No time soft exit + TP $0.20 + SL $1.25** | **Green on 5 Oct after fees** |
+| TP $0.22 + SL $1.15 + quiet skip (6 Oct) | 107W/30L but −$9.33: LINK and reversed winners |
+| **LINK off + break-even stop (7 Oct)** | **Current run** |
 
 Flat is still the benchmark. This timeline is paper evidence for Bitget AI Base Camp Hackathon S2, not a live-trading claim.
 

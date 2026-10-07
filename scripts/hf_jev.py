@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""TypeSafe Jev questions for the v3 HF desk (OpenRouter Decisions API).
+"""TypeSafe Jev questions for the v4 multi-asset HF desk (OpenRouter Decisions API).
 
 Two question sets, picked by book state, so every call only pays for questions
 that can change what we do:
   flat        -> direction (choice), move_60s (score), risk_stress (noul)
   in position -> close_now (noul), risk_stress (noul)
-One persistent HTTPS connection is reused to keep the round trip short.
+v4: the questions name the symbol and every call carries only that asset's own context
+(the engine builds one state per asset). One persistent HTTPS connection per client; the
+engine keeps one client per worker thread so per-asset calls run in parallel.
 """
 from __future__ import annotations
 
@@ -21,64 +23,83 @@ from typing import Any
 HOST = "openrouter.ai"
 PATH = "/api/alpha/decisions"
 MODEL = os.environ.get("JEV_MODEL", "typesafe/jev-1.13")
-MOVE_BUCKETS = ["under 2 bps (noise)", "2 to 4 bps", "4 to 7 bps", "7 to 12 bps", "over 12 bps"]
-MOVE_MID_BPS = [1.0, 3.0, 5.5, 9.5, 15.0]
+# v4: six size buckets so one scale covers BTC (a few bps) up to SUI/DOGE (tens of bps).
+MOVE_BUCKETS = ["under 2 bps (noise)", "2 to 4 bps", "4 to 7 bps", "7 to 12 bps", "12 to 20 bps", "over 20 bps"]
+MOVE_MID_BPS = [1.0, 3.0, 5.5, 9.5, 16.0, 26.0]
 
-RISK_Q = {
-    "type": "noul",
-    "instructions": (
-        "Should NEW risk be blocked right now? Consider: spread wider than a few ticks, "
-        "very thin book, a funding settlement within 2 minutes, a sudden erratic price "
-        "jump, or a paper drawdown above 3%."
-    ),
-    "criteria": {
-        "true": "Conditions are abnormal or the paper book is stressed; do not open a trade.",
-        "false": "Normal BTC perp conditions; opening a small paper clip is acceptable.",
-    },
-}
 
-FLAT_Q = {
-    "direction": {
-        "type": "choice",
-        "instructions": (
-            "BTCUSDT perpetual scalper, currently flat. Using order flow (flow_* = taker buy minus "
-            "sell share of notional), book imbalance (imb_* > 0 = more bids), microprice offset, "
-            "short returns (ret_*, bps) and the last 30 one-second returns, which way is BTC more "
-            "likely to move first by at least 4 bps over the next 60-120 seconds?"
-        ),
-        "criteria": {
-            "UP": "Buyers are in control: taker buying, bid-heavy book near the touch, returns turning up.",
-            "DOWN": "Sellers are in control: taker selling, ask-heavy book near the touch, returns turning down.",
-        },
-    },
-    "move_60s": {
-        "type": "score",
-        "instructions": (
-            "How far is BTC likely to travel in the direction of the stronger side over the "
-            "next 60 seconds, in basis points? Use sigma_120s_bps and range_60s_bps as the "
-            "scale of recent movement."
-        ),
-        "criteria": MOVE_BUCKETS,
-    },
-    "risk_stress": RISK_Q,
-}
+def _name(sym: str) -> str:
+    return sym[:-4] if sym.endswith("USDT") else sym
 
-POS_Q = {
-    "close_now": {
+
+def risk_q(sym: str) -> dict:
+    return {
         "type": "noul",
         "instructions": (
-            "We hold the paper position described in state.position (entry, unrealized bps, "
-            "age, resting take-profit and stop). Should it be closed now instead of waiting for "
-            "the take-profit or stop? Answer true only when flow and book pressure have turned "
-            "against the position or momentum has clearly stalled."
+            f"Should NEW risk on {sym} be blocked right now? Consider: spread wider than usual for "
+            "this market (asset.spread_bps vs asset.tick_bps), a very thin book near the touch, a "
+            "funding settlement within 2 minutes, a sudden erratic price jump, or a paper drawdown above 3%."
         ),
         "criteria": {
-            "true": "Flow and book now point against the position or the move has stalled; exit now.",
-            "false": "Flow still supports the position or is neutral; keep the take-profit working.",
+            "true": "Conditions are abnormal or the paper book is stressed; do not open a trade.",
+            "false": f"Normal {_name(sym)} perp conditions; opening a small paper clip is acceptable.",
         },
-    },
-    "risk_stress": RISK_Q,
-}
+    }
+
+
+def flat_questions(sym: str) -> dict:
+    n = _name(sym)
+    return {
+        "direction": {
+            "type": "choice",
+            "instructions": (
+                f"{sym} perpetual scalper, currently flat on {n}. Using this asset's own order flow "
+                "(flow_* = taker buy minus sell share of notional), book imbalance (imb_* > 0 = more bids), "
+                "microprice offset, short returns (ret_*, bps), the last 30 one-second returns and the "
+                f"last 1 s candles, which way is {n} more likely to move first by at least the cost "
+                "(asset.cost_floor_bps) over the next 60-120 seconds?"
+            ),
+            "criteria": {
+                "UP": "Buyers are in control: taker buying, bid-heavy book near the touch, returns turning up.",
+                "DOWN": "Sellers are in control: taker selling, ask-heavy book near the touch, returns turning down.",
+            },
+        },
+        "move_60s": {
+            "type": "score",
+            "instructions": (
+                f"How far is {n} likely to travel in the direction of the stronger side over the next "
+                "60-120 seconds, in basis points? Scale it to THIS asset: asset.typical_range_120s_bps is "
+                "the median high-low range of its 1 s mids over 120 s windows in the last 10 minutes; "
+                "sigma_120s_bps and range_60s_bps are its most recent movement."
+            ),
+            "criteria": MOVE_BUCKETS,
+        },
+        "risk_stress": risk_q(sym),
+    }
+
+
+def pos_questions(sym: str) -> dict:
+    return {
+        "close_now": {
+            "type": "noul",
+            "instructions": (
+                f"We hold the {sym} paper position described in state.position (entry, unrealized bps, "
+                "age, resting take-profit and stop, all in bps of this asset). Should it be closed now "
+                "instead of waiting for the take-profit or stop? Answer true only when this asset's flow "
+                "and book pressure have turned against the position or momentum has clearly stalled."
+            ),
+            "criteria": {
+                "true": "Flow and book now point against the position or the move has stalled; exit now.",
+                "false": "Flow still supports the position or is neutral; keep the take-profit working.",
+            },
+        },
+        "risk_stress": risk_q(sym),
+    }
+
+
+RISK_Q = risk_q("BTCUSDT")
+FLAT_Q = flat_questions("BTCUSDT")
+POS_Q = pos_questions("BTCUSDT")
 
 
 def load_dotenv(root: Path) -> None:
@@ -177,14 +198,14 @@ class MockJev:
 
     def ask(self, state: dict, questions: dict) -> dict:
         import random
-        time.sleep(0.3)
+        time.sleep(random.uniform(0.2, 0.4))
         if "direction" in questions:
             fl = state["flow"]["flow_15s"]
             pl = max(0.0, min(1.0, 0.33 + fl * 0.4 + random.uniform(-0.1, 0.1)))
             ps = max(0.0, min(1.0, 0.33 - fl * 0.4 + random.uniform(-0.1, 0.1)))
             pn = max(0.0, 1 - pl - ps)
             ch = max((("LONG", pl), ("SHORT", ps), ("NONE", pn)), key=lambda x: x[1])[0]
-            mp = [0.1, 0.2, 0.3, 0.3, 0.1]
+            mp = [0.1, 0.15, 0.25, 0.25, 0.15, 0.1]
             tot = (pl + ps) or 1.0
             pl, ps = pl / tot, ps / tot
             ch = "UP" if pl >= ps else "DOWN"

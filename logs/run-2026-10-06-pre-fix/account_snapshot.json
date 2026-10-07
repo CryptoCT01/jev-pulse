@@ -1,0 +1,395 @@
+{
+  "version": 4,
+  "strategy": "jev-pulse-v4-multi",
+  "strategy_version": "4.1",
+  "equity_start": 10000.0,
+  "run_start_ms": 1791321383554,
+  "cash": 9990.6713259872,
+  "equity": 9989.0786559872,
+  "realized": -9.328674012800022,
+  "gross_realized": 7.0360799999999735,
+  "funding_paid": -0.24326740720000004,
+  "fees_paid": 16.60802141999999,
+  "fees_full": 33.21604283999998,
+  "fees_rebate": 16.60802141999999,
+  "fees_by_liq": {
+    "maker": {
+      "count": 5,
+      "notional": 1019.04,
+      "full": 0.20380800000000002,
+      "rebate": 0.10190400000000001,
+      "net": 0.10190400000000001
+    },
+    "taker": {
+      "count": 273,
+      "notional": 55020.391400000015,
+      "full": 33.01223483999998,
+      "rebate": 16.50611741999999,
+      "net": 16.50611741999999
+    }
+  },
+  "exits_by_kind": {
+    "fee_green_taker": 102,
+    "stop_taker": 30,
+    "tp_maker": 5
+  },
+  "soft_exits": {
+    "posted": 0,
+    "maker": 0,
+    "fallback": 0,
+    "stop_override": 0,
+    "tp_merged": 0
+  },
+  "volume_usdt": 56039.43140000001,
+  "fills": 278,
+  "round_trips": 137,
+  "wins": 107,
+  "losses": 30,
+  "streak": -1,
+  "last_settlement": -1.152380562,
+  "open_count": 4,
+  "side": "short",
+  "upnl": -1.592669999999966,
+  "last_action": "FLAT",
+  "gate_block": "stop_taker",
+  "last_close": {
+    "symbol": "XAUUSDT",
+    "side": "short",
+    "ts_ms": 1791393080825,
+    "pnl": -1.152380562,
+    "kind": "stop_taker"
+  },
+  "by_asset": {
+    "BTCUSDT": {
+      "realized": 1.0784040823999734,
+      "gross_realized": 2.4434599999999724,
+      "fees_paid": 1.3828045319999998,
+      "fees_full": 2.7656090639999995,
+      "fees_rebate": 1.3828045319999998,
+      "fees_by_liq": {
+        "maker": {
+          "count": 0,
+          "notional": 0.0,
+          "full": 0.0,
+          "rebate": 0.0,
+          "net": 0.0
+        },
+        "taker": {
+          "count": 23,
+          "notional": 4609.34844,
+          "full": 2.7656090639999995,
+          "rebate": 1.3828045319999998,
+          "net": 1.3828045319999998
+        }
+      },
+      "funding_paid": -0.017748614399999998,
+      "volume_usdt": 4609.34844,
+      "fills": 23,
+      "round_trips": 11,
+      "wins": 10,
+      "losses": 1,
+      "exits_by_kind": {
+        "fee_green_taker": 10,
+        "stop_taker": 1
+      },
+      "upnl": -0.18012000000000697,
+      "last_close": {
+        "symbol": "BTCUSDT",
+        "side": "short",
+        "ts_ms": 1791392313292,
+        "pnl": 0.22164038400002095,
+        "kind": "fee_green_taker"
+      }
+    },
+    "ETHUSDT": {
+      "realized": 2.011663119999929,
+      "gross_realized": 4.627599999999929,
+      "fees_paid": 2.63853858,
+      "fees_full": 5.27707716,
+      "fees_rebate": 2.63853858,
+      "fees_by_liq": {
+        "maker": {
+          "count": 0,
+          "notional": 0.0,
+          "full": 0.0,
+          "rebate": 0.0,
+          "net": 0.0
+        },
+        "taker": {
+          "count": 43,
+          "notional": 8795.1286,
+          "full": 5.27707716,
+          "rebate": 2.63853858,
+          "net": 2.63853858
+        }
+      },
+      "funding_paid": -0.02260170000000001,
+      "volume_usdt": 8795.1286,
+      "fills": 43,
+      "round_trips": 21,
+      "wins": 19,
+      "losses": 2,
+      "exits_by_kind": {
+        "fee_green_taker": 19,
+        "stop_taker": 2
+      },
+      "upnl": -0.4915999999999622,
+      "last_close": {
+        "symbol": "ETHUSDT",
+        "side": "short",
+        "ts_ms": 1791391269808,
+        "pnl": 0.2260666400000102,
+        "kind": "fee_green_taker"
+      }
+    },
+    "SOLUSDT": {
+      "realized": -3.255205252200009,
+      "gross_realized": -0.584500000000008,
+      "fees_paid": 2.7047331900000007,
+      "fees_full": 5.409466380000001,
+      "fees_rebate": 2.7047331900000007,
+      "fees_by_liq": {
+        "maker": {
+          "count": 0,
+          "notional": 0.0,
+          "full": 0.0,
+          "rebate": 0.0,
+          "net": 0.0
+        },
+        "taker": {
+          "count": 45,
+          "notional": 9015.777299999998,
+          "full": 5.409466380000001,
+          "rebate": 2.7047331900000007,
+          "net": 2.7047331900000007
+        }
+      },
+      "funding_paid": -0.034027937800000005,
+      "volume_usdt": 9015.777299999998,
+      "fills": 45,
+      "round_trips": 22,
+      "wins": 16,
+      "losses": 6,
+      "exits_by_kind": {
+        "stop_taker": 6,
+        "fee_green_taker": 16
+      },
+      "upnl": -0.6434500000000042,
+      "last_close": {
+        "symbol": "SOLUSDT",
+        "side": "short",
+        "ts_ms": 1791391192414,
+        "pnl": 0.22592574999998088,
+        "kind": "fee_green_taker"
+      }
+    },
+    "LINKUSDT": {
+      "realized": -9.136689999999948,
+      "gross_realized": -3.8279999999999443,
+      "fees_paid": 5.3487555,
+      "fees_full": 10.697511,
+      "fees_rebate": 5.3487555,
+      "fees_by_liq": {
+        "maker": {
+          "count": 4,
+          "notional": 820.98,
+          "full": 0.164196,
+          "rebate": 0.082098,
+          "net": 0.082098
+        },
+        "taker": {
+          "count": 87,
+          "notional": 17555.525,
+          "full": 10.533315,
+          "rebate": 5.2666575,
+          "net": 5.2666575
+        }
+      },
+      "funding_paid": -0.040065500000000004,
+      "volume_usdt": 18376.505,
+      "fills": 91,
+      "round_trips": 45,
+      "wins": 31,
+      "losses": 14,
+      "exits_by_kind": {
+        "fee_green_taker": 27,
+        "stop_taker": 14,
+        "tp_maker": 4
+      },
+      "upnl": -0.27749999999999275,
+      "last_close": {
+        "symbol": "LINKUSDT",
+        "side": "short",
+        "ts_ms": 1791390281017,
+        "pnl": 0.22413450000002197,
+        "kind": "fee_green_taker"
+      }
+    },
+    "DOGEUSDT": {
+      "realized": 0.8008621479999739,
+      "gross_realized": 3.0596199999999745,
+      "fees_paid": 2.2787598479999995,
+      "fees_full": 4.557519695999999,
+      "fees_rebate": 2.2787598479999995,
+      "fees_by_liq": {
+        "maker": {
+          "count": 0,
+          "notional": 0.0,
+          "full": 0.0,
+          "rebate": 0.0,
+          "net": 0.0
+        },
+        "taker": {
+          "count": 38,
+          "notional": 7595.86616,
+          "full": 4.557519695999999,
+          "rebate": 2.2787598479999995,
+          "net": 2.2787598479999995
+        }
+      },
+      "funding_paid": -0.020001996,
+      "volume_usdt": 7595.86616,
+      "fills": 38,
+      "round_trips": 19,
+      "wins": 16,
+      "losses": 3,
+      "exits_by_kind": {
+        "fee_green_taker": 16,
+        "stop_taker": 3
+      },
+      "upnl": 0.0,
+      "last_close": {
+        "symbol": "DOGEUSDT",
+        "side": "short",
+        "ts_ms": 1791385257600,
+        "pnl": 0.22001726999999402,
+        "kind": "fee_green_taker"
+      }
+    },
+    "LTCUSDT": {
+      "realized": 0.5648050000000648,
+      "gross_realized": 2.0480000000000644,
+      "fees_paid": 1.5229823999999998,
+      "fees_full": 3.0459647999999997,
+      "fees_rebate": 1.5229823999999998,
+      "fees_by_liq": {
+        "maker": {
+          "count": 1,
+          "notional": 198.06,
+          "full": 0.039612,
+          "rebate": 0.019806,
+          "net": 0.019806
+        },
+        "taker": {
+          "count": 25,
+          "notional": 5010.588,
+          "full": 3.0063527999999997,
+          "rebate": 1.5031763999999999,
+          "net": 1.5031763999999999
+        }
+      },
+      "funding_paid": -0.0397874,
+      "volume_usdt": 5208.648,
+      "fills": 26,
+      "round_trips": 13,
+      "wins": 11,
+      "losses": 2,
+      "exits_by_kind": {
+        "fee_green_taker": 10,
+        "stop_taker": 2,
+        "tp_maker": 1
+      },
+      "upnl": 0.0,
+      "last_close": {
+        "symbol": "LTCUSDT",
+        "side": "long",
+        "ts_ms": 1791392594091,
+        "pnl": 0.24112799999997103,
+        "kind": "fee_green_taker"
+      }
+    },
+    "XAUUSDT": {
+      "realized": -0.7076323910000073,
+      "gross_realized": -0.4045000000000072,
+      "fees_paid": 0.37216665,
+      "fees_full": 0.7443333,
+      "fees_rebate": 0.37216665,
+      "fees_by_liq": {
+        "maker": {
+          "count": 0,
+          "notional": 0.0,
+          "full": 0.0,
+          "rebate": 0.0,
+          "net": 0.0
+        },
+        "taker": {
+          "count": 6,
+          "notional": 1240.5555,
+          "full": 0.7443333,
+          "rebate": 0.37216665,
+          "net": 0.37216665
+        }
+      },
+      "funding_paid": -0.06903425900000001,
+      "volume_usdt": 1240.5555,
+      "fills": 6,
+      "round_trips": 3,
+      "wins": 2,
+      "losses": 1,
+      "exits_by_kind": {
+        "fee_green_taker": 2,
+        "stop_taker": 1
+      },
+      "upnl": 0.0,
+      "last_close": {
+        "symbol": "XAUUSDT",
+        "side": "short",
+        "ts_ms": 1791393080825,
+        "pnl": -1.152380562,
+        "kind": "stop_taker"
+      }
+    },
+    "XAGUSDT": {
+      "realized": -0.6848807200000048,
+      "gross_realized": -0.3256000000000048,
+      "fees_paid": 0.35928072,
+      "fees_full": 0.71856144,
+      "fees_rebate": 0.35928072,
+      "fees_by_liq": {
+        "maker": {
+          "count": 0,
+          "notional": 0.0,
+          "full": 0.0,
+          "rebate": 0.0,
+          "net": 0.0
+        },
+        "taker": {
+          "count": 6,
+          "notional": 1197.6024,
+          "full": 0.71856144,
+          "rebate": 0.35928072,
+          "net": 0.35928072
+        }
+      },
+      "funding_paid": 0.0,
+      "volume_usdt": 1197.6024,
+      "fills": 6,
+      "round_trips": 3,
+      "wins": 2,
+      "losses": 1,
+      "exits_by_kind": {
+        "fee_green_taker": 2,
+        "stop_taker": 1
+      },
+      "upnl": 0.0,
+      "last_close": {
+        "symbol": "XAGUSDT",
+        "side": "short",
+        "ts_ms": 1791385425381,
+        "pnl": 0.24755077999999806,
+        "kind": "fee_green_taker"
+      }
+    }
+  },
+  "updated_ms": 1791393124586
+}

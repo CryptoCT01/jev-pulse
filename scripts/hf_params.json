@@ -50,8 +50,9 @@
   "risk_veto": 0.85,
   "no_scratch_exits": true,
   "exit_when_net_green": true,
-  "hard_stop_usd": 1.25,
-  "min_take_usd": 0.2,
+  "hard_stop_usd": 1.15,
+  "min_take_usd": 0.22,
+  "quiet_max_bps": 8.0,
   "close_now_thr": 0.7,
   "close_min_age_s": 8,
   "same_side_cooldown_s": 30,
@@ -74,5 +75,6 @@
   "publish_every_s": 20,
   "big_print_usd": 50000,
   "grid_step_s": 5,
-  "grid_span_s": 1800
+  "grid_span_s": 1800,
+  "be_trigger_bps": 10.0
 }

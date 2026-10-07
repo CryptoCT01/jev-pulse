@@ -28,8 +28,10 @@ Live paper desk after the morning experiment loop. Reset to **$10,000** at **~08
 
 | Param | Live value | Notes |
 | --- | --- | --- |
-| `min_take_usd` | **0.20** | Dollar take-profit floor |
-| `hard_stop_usd` | **1.25** | Hard dollar stop |
+| `min_take_usd` | **0.22** | Dollar take-profit floor |
+| `hard_stop_usd` | **1.15** | Hard dollar stop |
+| `be_trigger_bps` | **10** | Break-even stop: once a trade has been up 10 bps, close it if it falls back to $0 net after fees (7 Oct) |
+| `quiet_max_bps` | **8** | Skip markets that are too quiet to clear costs |
 | `no_scratch_exits` | **true** | Time soft exit **OFF** |
 | `exit_when_net_green` | **true** | Exit when net green after fees |
 | Cadence / sizing | 2.5 s · top-2 by room · max 5 open · $200 clip | Unchanged |
@@ -49,7 +51,9 @@ Honest short version (full numbers in the [timeline](docs/TIMELINE.md)):
 5. **Revert TP to $0.20, keep time exit** — **still worse** (104 RT, 25W/79L).
 6. **User: time makes it worse** → restore **`no_scratch_exits`** (time exit OFF), TP **$0.20**, SL **$1.25**, reset **08:59 BST** → **this green run** (final so far).
 
-**Final choice:** dollar TP $0.20 + hard stop $1.25 + **no time soft exit**. The bot is running well; leave it alone.
+**5 Oct choice:** dollar TP $0.20 + hard stop $1.25 + **no time soft exit**.
+7. **6 Oct 22:15** — TP $0.22 / stop $1.15 + quiet-market skip, reset. 137 RT, 107W/30L, −$9.33 by 7 Oct 18:12.
+8. **7 Oct ~18:15** — **LINK off** (it lost $9.08) + **break-even stop** (10 of 29 losers had been up 10–16 bps), reset to $10,000 → **current run**.
 
 ---
 
@@ -74,8 +78,8 @@ Only what Jev Pulse actually ships:
 | Data | Bitget public WebSocket `books15`, `trade`, `ticker` for the 8-asset universe |
 | Decision | Jev every 2.5 s. Close-now on open positions first, then top-2 flat candidates by room |
 | Entry | Taker, one $200 clip. Needs P(side) ≥ 0.60, expected move ≥ cost floor, room ≥ 1.0, flow agreement |
-| Take-profit | Maker band clamp(R, 5, 25) bps **and** dollar floor `min_take_usd` 0.20 when `no_scratch_exits` |
-| Stop | Bps band clamp(0.8×TP, 4, 20) **and** dollar `hard_stop_usd` 1.25 |
+| Take-profit | Maker band clamp(R, 5, 25) bps **and** dollar floor `min_take_usd` 0.22 when `no_scratch_exits` |
+| Stop | Bps band clamp(0.8×TP, 4, 20) **and** dollar `hard_stop_usd` 1.15, plus a break-even stop after +10 bps (`be_trigger_bps`) |
 | Time soft exit | **OFF** (`no_scratch_exits: true`) — tested; made the book worse |
 | Net-green exit | `exit_when_net_green: true` |
 
